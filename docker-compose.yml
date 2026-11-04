@@ -1,0 +1,46 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.web
+    ports:
+      - '${WEB_PORT:-8080}:80'
+    volumes:
+      - public-data:/public-data:ro
+    mem_limit: 128m
+    restart: unless-stopped
+    depends_on:
+      sync:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD', 'wget', '-qO-', 'http://127.0.0.1/healthz']
+      interval: 30s
+      timeout: 3s
+      retries: 3
+
+  sync:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.sync
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      PUBLIC_DATA_DIRECTORY: /public-data
+      REPORT_DIRECTORY: /reports
+    volumes:
+      - public-data:/public-data
+      - reports:/reports
+      # Real data is mounted read-only and only when it exists on this machine (CSV stage).
+      - ./data/private:/app/data/private:ro
+    mem_limit: 512m
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD', 'test', '-e', '/public-data/current/graph.json']
+      interval: 10s
+      timeout: 3s
+      retries: 30
+
+volumes:
+  public-data:
+  reports:

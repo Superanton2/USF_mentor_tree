@@ -1,0 +1,15 @@
+node_modules
+**/node_modules
+.git
+.env
+.claude
+.agent-skills-source
+.venv
+.idea
+tools
+data/private
+public-data*
+reports
+**/dist
+**/test-results
+**/playwright-report
