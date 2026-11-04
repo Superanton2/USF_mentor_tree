@@ -38,6 +38,11 @@ export const en: Translations = {
   totalDescendants: (count) => `Total descendants: ${count}`,
   notInTreeMessage:
     'Not in a tree yet. Our data is incomplete — if you had a mentor or have mentees, fill in the form and we will add you in the next update',
+  viewSwitchLabel: 'View switch',
+  viewGraph: 'Graph',
+  viewLineage: 'Tree',
+  lineageUnavailableHint: 'Find yourself or choose a tree from the list',
+  lineageLabel: 'Tree lineage',
   graphLabel: 'Mentorship graph',
   levels: {
     activist: 'Activist',

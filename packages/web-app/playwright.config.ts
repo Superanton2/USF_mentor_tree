@@ -14,7 +14,7 @@ export default defineConfig({
     url: 'http://localhost:5173/graph.json',
     reuseExistingServer: false,
     env: {
-      CSV_DIRECTORY: 'data/demo',
+      CSV_DIRECTORY: process.env['E2E_CSV_DIRECTORY'] ?? 'data/demo',
       PUBLIC_DATA_DIRECTORY: END_TO_END_DATA_DIRECTORY,
       REPORT_DIRECTORY: resolve(END_TO_END_DATA_DIRECTORY, 'reports'),
     },

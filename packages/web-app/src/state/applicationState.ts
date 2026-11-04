@@ -18,6 +18,7 @@ export type ApplicationAction =
   | { type: 'treeSelected'; treeId: string }
   | { type: 'selectionCleared' }
   | { type: 'languageChanged'; language: Language }
+  | { type: 'viewChanged'; view: ViewMode }
   | { type: 'noticeDismissed' };
 
 export function createInitialState(language: Language): ApplicationState {
@@ -50,6 +51,10 @@ export function applicationReducer(
       };
     case 'languageChanged':
       return { ...state, language: action.language };
+    case 'viewChanged':
+      return state.selectedTreeId === null && action.view === 'lineage'
+        ? state
+        : { ...state, view: action.view };
     case 'noticeDismissed':
       return { ...state, notice: null };
   }

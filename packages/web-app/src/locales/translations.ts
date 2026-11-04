@@ -47,6 +47,11 @@ export interface Translations {
   totalDescendants: (count: number) => string;
   notInTreeMessage: string;
   graphLabel: string;
+  viewSwitchLabel: string;
+  viewGraph: string;
+  viewLineage: string;
+  lineageUnavailableHint: string;
+  lineageLabel: string;
   levels: Record<MembershipLevel, string>;
   regions: Record<Region, string>;
 }

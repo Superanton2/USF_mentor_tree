@@ -107,6 +107,19 @@ describe('applicationReducer', () => {
         .notice,
     ).toBeNull();
   });
+  it('changes view only to lineage when a tree is selected', () => {
+    expect(applicationReducer(initial, { type: 'viewChanged', view: 'lineage' }).view).toBe(
+      'graph',
+    );
+    const withTree = { ...initial, selectedTreeId: '1' };
+    expect(applicationReducer(withTree, { type: 'viewChanged', view: 'lineage' }).view).toBe(
+      'lineage',
+    );
+    expect(
+      applicationReducer({ ...withTree, view: 'lineage' }, { type: 'viewChanged', view: 'graph' })
+        .view,
+    ).toBe('graph');
+  });
   it('restores a location wholesale', () => {
     const restored = { ...initial, selectedTreeId: '9' };
     expect(applicationReducer(initial, { type: 'locationRestored', state: restored })).toBe(

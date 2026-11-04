@@ -38,6 +38,11 @@ export const uk: Translations = {
   totalDescendants: (count) => `Усього нащадків: ${count}`,
   notInTreeMessage:
     'Ще не в дереві. Наші дані неповні — якщо у вас був ментор або є менті, заповніть форму, і ми додамо вас під час наступного оновлення',
+  viewSwitchLabel: 'Перемикач вигляду',
+  viewGraph: 'Граф',
+  viewLineage: 'Дерево',
+  lineageUnavailableHint: 'Знайдіть себе або оберіть дерево зі списку',
+  lineageLabel: 'Родовід дерева',
   graphLabel: 'Граф менторства',
   levels: {
     activist: 'Активіст',
