@@ -1,0 +1,7 @@
+﻿Ключ,Значення,Опис
+publishRequested,TRUE,Галочка «Опублікувати зміни»
+formUrl,https://forms.gle/demo-form,Посилання на Google Form
+showMembersWithoutConnections,FALSE,Показувати кільце учасників без зв’язків
+largestTreesCount,10,Скільки дерев у списку найбільших
+labelZoomThreshold,1.5,З якого масштабу видно підписи
+dimmedOpacity,дуже тьмяно,Навмисно некоректне значення для демо INVALID_SETTING
