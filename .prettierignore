@@ -1,0 +1,15 @@
+node_modules
+dist
+coverage
+data
+.claude
+.agent-skills-source
+.venv
+.idea
+tools
+playwright-report
+test-results
+public-data
+package-lock.json
+SPEC.md
+CLAUDE.md

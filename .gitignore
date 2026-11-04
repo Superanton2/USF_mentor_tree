@@ -1,0 +1,16 @@
+node_modules/
+dist/
+coverage/
+.env
+*.key
+secrets/
+data/private/
+.venv/
+.idea/
+.DS_Store
+.agent-skills-source/
+playwright-report/
+test-results/
+public-data/
+reports/
+.claude/skills/
