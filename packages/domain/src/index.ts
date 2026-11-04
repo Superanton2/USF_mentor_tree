@@ -10,3 +10,5 @@ export * from './treeBuilding';
 export * from './settingsParsing';
 export * from './graphDocument';
 export * from './membershipImport';
+export * from './searchNormalization';
+export * from './graphIndex';
