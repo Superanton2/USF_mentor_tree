@@ -64,3 +64,17 @@ export function listTreeMembers(index: GraphIndex, treeId: string): GraphMember[
 export function listMentees(index: GraphIndex, memberId: string): GraphMember[] {
   return index.menteesByMentorId.get(memberId) ?? [];
 }
+
+/** Founder → … → member, following mentors upwards. Stops at the first missing mentor. */
+export function listPathFromFounder(index: GraphIndex, memberId: string): GraphMember[] {
+  const path: GraphMember[] = [];
+  const visitedIds = new Set<string>();
+  let current = index.membersById.get(memberId);
+  while (current && !visitedIds.has(current.memberId)) {
+    visitedIds.add(current.memberId);
+    path.push(current);
+    current =
+      current.mentorMemberId === null ? undefined : index.membersById.get(current.mentorMemberId);
+  }
+  return path.reverse();
+}

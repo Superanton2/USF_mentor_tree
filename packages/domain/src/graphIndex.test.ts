@@ -4,6 +4,7 @@ import {
   buildGraphIndex,
   findTreeFounder,
   listMentees,
+  listPathFromFounder,
   listTreeMembers,
   searchMembers,
 } from './graphIndex';
@@ -58,5 +59,14 @@ describe('graph index', () => {
     expect(listTreeMembers(index, '1')).toHaveLength(3);
     expect(listMentees(index, '1').map((found) => found.memberId)).toEqual(['2', 'hidden-1']);
     expect(listMentees(index, '4')).toEqual([]);
+  });
+
+  it('lists the path from the founder down to a member', () => {
+    expect(listPathFromFounder(index, 'hidden-1').map((found) => found.memberId)).toEqual([
+      '1',
+      'hidden-1',
+    ]);
+    expect(listPathFromFounder(index, '1').map((found) => found.memberId)).toEqual(['1']);
+    expect(listPathFromFounder(index, 'nope')).toEqual([]);
   });
 });
