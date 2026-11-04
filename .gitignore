@@ -14,3 +14,4 @@ test-results/
 public-data/
 reports/
 .claude/skills/
+tools/
