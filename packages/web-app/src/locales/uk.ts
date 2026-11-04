@@ -1,0 +1,49 @@
+import type { Translations } from './translations';
+
+export const uk: Translations = {
+  htmlTitle: 'Дерево Менторів УСС',
+  siteName: 'Дерево Менторів УСС',
+  logoDescription: 'Логотип УСС',
+  languageSwitchLabel: 'Мова',
+  searchPlaceholder: 'Знайдіть себе за ім’ям або прізвищем',
+  searchLabel: 'Пошук учасника',
+  searchResultsLabel: 'Результати пошуку',
+  searchNothingFound:
+    'Нікого не знайдено. Можливо, ваших даних ще немає — заповніть форму, і ми додамо вас під час наступного оновлення',
+  resultNotInTree: 'Ще не в дереві',
+  resultTree: (founderName) => `Дерево ${founderName}`,
+  fillForm: 'Заповнити форму',
+  loading: 'Завантаження…',
+  loadError: 'Не вдалося завантажити дані',
+  retry: 'Спробувати ще',
+  emptyData:
+    'Дерев менторів поки немає. Заповніть форму, і ми додамо вас під час наступного оновлення',
+  treeNotFound: 'Дерево не знайдено',
+  dismiss: 'Закрити повідомлення',
+  disclaimerBeforeLink:
+    'Дані неповні й можуть містити помилки. Не знайшли себе або бачите помилку? ',
+  disclaimerLink: 'Заповніть форму',
+  dataUpdatedOn: (formattedDate) => `Дані оновлено ${formattedDate}`,
+  hiddenMemberName: 'Учасник УСС',
+  hiddenFounderTreeName: 'Дерево учасника УСС',
+  treeTitle: (founderName) => `Дерево ${founderName}`,
+  memberCount: { one: 'учасник', few: 'учасники', many: 'учасників', other: 'учасника' },
+  cardLabel: 'Картка учасника',
+  closeCard: 'Закрити картку',
+  foundedThisTree: 'Започаткував(-ла) це дерево',
+  treeFounderLabel: 'Засновник дерева',
+  mentorLabel: 'Ментор',
+  noMentor: '—',
+  menteesLabel: (count) => `Менті (${count})`,
+  totalDescendants: (count) => `Усього нащадків: ${count}`,
+  notInTreeMessage:
+    'Ще не в дереві. Наші дані неповні — якщо у вас був ментор або є менті, заповніть форму, і ми додамо вас під час наступного оновлення',
+  graphLabel: 'Граф менторства',
+  levels: {
+    activist: 'Активіст',
+    functionary: 'Функціонер',
+    coordinator: 'Координатор',
+    'senior-coordinator': 'Старший координатор',
+  },
+  regions: { west: 'Захід', center: 'Центр', east: 'Схід', south: 'Південь' },
+};

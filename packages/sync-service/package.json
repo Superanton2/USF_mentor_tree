@@ -11,6 +11,7 @@
     "build": "tsc --noEmit"
   },
   "dependencies": {
-    "@mentor-tree/domain": "*"
+    "@mentor-tree/domain": "*",
+    "tsx": "^4.23.15"
   }
 }

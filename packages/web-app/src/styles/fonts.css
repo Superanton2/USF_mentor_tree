@@ -1,0 +1,43 @@
+/* Apercu Pro: Light, Regular, Bold with italics (SPEC 8). Self-hosted, no external requests. */
+@font-face {
+  font-family: 'Apercu Pro';
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+  src: url('../../../../assets/fonts/apercu-pro/ApercuPro-Light.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Apercu Pro';
+  font-weight: 300;
+  font-style: italic;
+  font-display: swap;
+  src: url('../../../../assets/fonts/apercu-pro/ApercuPro-LightItalic.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Apercu Pro';
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  src: url('../../../../assets/fonts/apercu-pro/ApercuPro-Regular.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Apercu Pro';
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+  src: url('../../../../assets/fonts/apercu-pro/ApercuPro-Italic.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Apercu Pro';
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+  src: url('../../../../assets/fonts/apercu-pro/ApercuPro-Bold.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Apercu Pro';
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+  src: url('../../../../assets/fonts/apercu-pro/ApercuPro-BoldItalic.woff2') format('woff2');
+}
