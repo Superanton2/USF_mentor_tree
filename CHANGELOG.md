@@ -4,6 +4,13 @@
 
 ## [Unreleased]
 
+### Додано (етап 2)
+
+- Веб-застосунок: граф у стилі Obsidian (force-graph), пошук зі стрілками й гарячою клавішею `/`, картка людини (bottom sheet на мобільному), плашка про неповні дані, дата оновлення, мови УКР/ENG.
+- Адреси `/{lang}/tree/{id}?member=`, кнопки «назад/вперед», повідомлення про невідоме дерево.
+- Docker Compose: `web` (nginx) і `sync`; `docker compose up -d --build`.
+- Шрифти Apercu Pro, логотип УСС.
+
 ### Додано
 
 - Етап 0: monorepo (`domain`, `sync-service`, `web-app`), TypeScript strict, ESLint з правилами іменування, Prettier, Vitest, Playwright, CI, перевірка відсутності реальних даних.

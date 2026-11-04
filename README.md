@@ -2,7 +2,7 @@
 
 Сайт `mentors.studfreedom.org`: дерева менторства в ГО «Українські Студенти за Свободу». Повне технічне завдання — [`SPEC.md`](SPEC.md), правила коду — [`CLAUDE.md`](CLAUDE.md), план — [`docs/plan.md`](docs/plan.md).
 
-**Статус:** етапи 0–1 (фундамент та імпорт даних). Веб-інтерфейс у розробці.
+**Статус:** етапи 0–2 (фундамент, імпорт даних, граф із пошуком і карткою). «Мій родовід», налаштування й експорт — далі.
 
 ## Швидкий старт (потрібен Node.js 22)
 
@@ -11,6 +11,15 @@ npm ci
 npm run sync            # демо-дані → public-data/current/graph.json
 npm test
 ```
+
+Усе разом у Docker (демо-дані, без `.env`):
+
+```bash
+docker compose up -d --build   # сайт на http://localhost:8080 (змінна WEB_PORT)
+```
+
+Реальні дані: покладіть CSV у `data/private/`, у `.env` вкажіть `CSV_DIRECTORY=/app/data/private` і перезапустіть `sync`
+(`docker compose up -d --force-recreate sync`).
 
 Реальні дані лежать у `data/private/` (у git не потрапляють). Запуск на них:
 
