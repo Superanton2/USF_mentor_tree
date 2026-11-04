@@ -1,0 +1,16 @@
+{
+  "name": "@mentor-tree/sync-service",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "sync": "tsx src/cli/syncCommand.ts",
+    "sync:rollback": "tsx src/cli/rollbackCommand.ts",
+    "test": "vitest run --coverage",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@mentor-tree/domain": "*"
+  }
+}
