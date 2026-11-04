@@ -22,7 +22,7 @@
 - [x] 0.6 (S) Playwright-каркас + `web-app` (Vite + React 19) з порожньою сторінкою. ✔ smoke e2e.
 - [ ] 0.7 (M) CI (файл `.github/workflows/ci.yml` написано, не запускалося — немає віддаленого репо; `docker build` додасться на етапі 2): lint, typecheck, test, build, e2e, docker build, gitleaks, перевірка «CSV лише в demo/reference». ✔ локально через `act` або перегляд workflow; зелений на GitHub після першого пушу.
 - [x] 0.8 (S) `README.md` (скелет), `CHANGELOG.md`, ADR-0001 (стек).
-- [ ] 0.9 (XS) Шрифти Apercu Pro в `assets/fonts/apercu-pro/` і логотип в `assets/brand/` — **блокується файлами від власника**.
+- [x] 0.9 (XS) Шрифти Apercu Pro в `assets/fonts/apercu-pro/` і логотип в `assets/brand/` — **блокується файлами від власника**.
 
 Checkpoint 0: `npm ci && npm test && npm run build` зелене; `git ls-files data/private` порожній.
 
@@ -72,3 +72,5 @@ Checkpoint 1: цифри збігаються, повторний запуск �
 3. Англійські назви/рівні, noindex — прийняти за замовчуванням SPEC, звірити перед релізом.
 4. Структура Google-таблиці — етап 6.
 5. GitHub-репозиторій: чи створено віддалений репо (потрібен для CI і захисту `main`)?
+
+6. **Ліцензія Apercu Pro.** Шрифт комерційний, репозиторій публічний. Файли поки не комітяться (`assets/fonts/README.md`). Чи дозволяє ліцензія УСС публікувати їх у репозиторії? Інакше передаємо їх окремо.
