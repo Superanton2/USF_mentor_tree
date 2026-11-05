@@ -13,6 +13,14 @@ export interface GraphRendererLink {
   menteeMemberId: string;
 }
 
+/** Pixels covered by interface on each side; the camera frames the tree in the free area. */
+export interface ViewInsets {
+  top: number;
+  right: number;
+  bottom: number;
+  left: number;
+}
+
 export interface GraphRendererSelection {
   memberId: string | null;
   treeId: string | null;
@@ -35,7 +43,7 @@ export interface GraphRendererOptions {
 export interface GraphRenderer {
   setSelection(selection: GraphRendererSelection): void;
   /** Smoothly frames the tree; with null frames the whole graph. */
-  focusOnTree(treeId: string | null): void;
+  focusOnTree(treeId: string | null, insets: ViewInsets): void;
   destroy(): void;
 }
 
