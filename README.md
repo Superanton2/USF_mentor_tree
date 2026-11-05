@@ -25,6 +25,14 @@ docker compose up -d --build   # сайт на http://localhost:8080 (змінн
 
 У Docker сервіс `sync` сам стежить за CSV-файлами (кожні 10 с, `CSV_POLL_INTERVAL_SECONDS`): змінили `data/private/*.csv` — за кілька секунд нові дані на сайті, контейнер перестворювати не треба (достатньо оновити сторінку). Результат видно в `docker compose logs -f sync`, звіт — `docker compose exec sync cat /reports/import-report.csv`.
 
+Щоб контейнери самі перезбирались при змінах коду, запускайте з `--watch`:
+
+```bash
+docker compose up --build --watch   # змінили код у packages/ або assets/ — відповідний сервіс перезбереться сам
+```
+
+(потрібен Docker Compose ≥ 2.22; працює, поки команда запущена в терміналі. Зміни даних у `data/private/` підхоплюються окремо, без перезбірки.)
+
 Реальні дані лежать у `data/private/` (у git не потрапляють). Запуск на них:
 
 ```bash

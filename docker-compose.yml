@@ -12,6 +12,21 @@ services:
     depends_on:
       sync:
         condition: service_healthy
+    # `docker compose up --watch`: rebuilds this service when the code it is built from changes.
+    develop:
+      watch:
+        - action: rebuild
+          path: ./packages/web-app
+          ignore: [node_modules/, dist/, test-results/, playwright-report/, e2e/]
+        - action: rebuild
+          path: ./packages/domain
+          ignore: [node_modules/]
+        - action: rebuild
+          path: ./assets
+        - action: rebuild
+          path: ./docker/nginx.conf
+        - action: rebuild
+          path: ./package-lock.json
     healthcheck:
       test: ['CMD', 'wget', '-qO-', 'http://127.0.0.1/healthz']
       interval: 30s
@@ -35,6 +50,18 @@ services:
       - ./data/private:/app/data/private:ro
     mem_limit: 512m
     restart: unless-stopped
+    develop:
+      watch:
+        - action: rebuild
+          path: ./packages/sync-service
+          ignore: [node_modules/]
+        - action: rebuild
+          path: ./packages/domain
+          ignore: [node_modules/]
+        - action: rebuild
+          path: ./data/reference
+        - action: rebuild
+          path: ./package-lock.json
     healthcheck:
       test: ['CMD', 'test', '-e', '/public-data/current/graph.json']
       interval: 10s
