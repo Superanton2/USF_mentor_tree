@@ -161,6 +161,14 @@ export function generateDemoDataFiles(seed = DEMO_SEED): {
       const candidates = treeMembers.filter(({ generation }) => generation < MAX_GENERATION);
       const mentor = pick(candidates);
       const mentee = createMember({ mentorId: mentor.member.id, status: STATUS_EXACT });
+      // Some tree members lack a year, level or city, like real data does: the color modes
+      // and filters must handle "no data".
+      if (members.length % 9 === 4) mentee.year = '';
+      if (members.length % 7 === 2) mentee.level = '';
+      if (members.length % 11 === 6) {
+        mentee.city = '';
+        mentee.region = '';
+      }
       treeMembers.push({ member: mentee, generation: mentor.generation + 1 });
       members.push(mentee);
     }
