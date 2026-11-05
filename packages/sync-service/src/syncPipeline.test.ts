@@ -142,6 +142,7 @@ describe('runSync', () => {
       runSync({
         dataSource: {
           description: 'broken',
+          readChangeFingerprint: () => Promise.resolve('x'),
           readMembershipRecords: () => Promise.reject(new TypeError('boom')),
         },
         reportWriter: new CsvImportReportWriter(join(directory, 'reports/r.csv')),

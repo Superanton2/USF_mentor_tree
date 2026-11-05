@@ -20,7 +20,8 @@
     "format": "prettier --write .",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "build": "npm run build --workspaces --if-present",
-    "check:data": "tsx scripts/checkNoRealData.ts"
+    "check:data": "tsx scripts/checkNoRealData.ts",
+    "sync:watch": "npm run sync:watch --workspace @mentor-tree/sync-service"
   },
   "devDependencies": {
     "@eslint/js": "^9.0.0",

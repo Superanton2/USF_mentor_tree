@@ -1,3 +1,4 @@
+import { writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { CsvMembershipDataSource } from './csvMembershipDataSource';
@@ -93,6 +94,26 @@ describe('CsvMembershipDataSource', () => {
       citiesFilePath: join(directory, 'cities.csv'),
     }).readMembershipRecords();
     expect(records.members[0]?.isHidden).toBe(true);
+  });
+
+  it('changes its fingerprint when any input file changes or appears', async () => {
+    const directory = await createWorkspace({
+      'mentorship_clean.csv': `${MEMBERS_HEADER}\n`,
+      'cities.csv': CITIES_CSV,
+    });
+    const source = new CsvMembershipDataSource({
+      directory,
+      citiesFilePath: join(directory, 'cities.csv'),
+    });
+    const initial = await source.readChangeFingerprint();
+    expect(await source.readChangeFingerprint()).toBe(initial);
+
+    await writeFile(join(directory, 'settings.csv'), 'Ключ,Значення,Опис\nlargestTreesCount,5,\n');
+    const withSettings = await source.readChangeFingerprint();
+    expect(withSettings).not.toBe(initial);
+
+    await writeFile(join(directory, 'settings.csv'), 'Ключ,Значення,Опис\nlargestTreesCount,6,\n');
+    expect(await source.readChangeFingerprint()).not.toBe(withSettings);
   });
 
   it('fails with DataSourceUnavailableError when required columns are missing', async () => {

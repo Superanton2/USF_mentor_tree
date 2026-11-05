@@ -8,6 +8,7 @@ describe('readEnvironmentConfiguration', () => {
     expect(configuration.csvDirectory.endsWith('data/demo')).toBe(true);
     expect(isAbsolute(configuration.publicDataDirectory)).toBe(true);
     expect(configuration.releasesToKeep).toBe(5);
+    expect(configuration.csvPollIntervalSeconds).toBe(10);
   });
 
   it('keeps absolute paths as given', () => {

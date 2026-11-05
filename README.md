@@ -23,6 +23,8 @@ docker compose up -d --build   # сайт на http://localhost:8080 (змінн
 
 Щоб `npm run dev` і Docker показували реальні дані, у локальному `.env` (він не потрапляє в git) вкажіть `CSV_DIRECTORY=data/private`, потім `npm run sync`. Налаштування (наприклад `formUrl`) беруться з `data/private/settings.csv`.
 
+У Docker сервіс `sync` сам стежить за CSV-файлами (кожні 10 с, `CSV_POLL_INTERVAL_SECONDS`): змінили `data/private/*.csv` — за кілька секунд нові дані на сайті, контейнер перестворювати не треба (достатньо оновити сторінку). Результат видно в `docker compose logs -f sync`, звіт — `docker compose exec sync cat /reports/import-report.csv`.
+
 Реальні дані лежать у `data/private/` (у git не потрапляють). Запуск на них:
 
 ```bash
@@ -37,6 +39,7 @@ CSV_DIRECTORY=data/private npm run sync
 | -------------------------------------- | ---------------------------------------------------------------- |
 | `npm run dev`                          | web-app локально                                                 |
 | `npm run sync`                         | імпорт → реліз (`-- --force` для етапу 6)                        |
+| `npm run sync:watch`                   | стежити за файлами й публікувати при змінах (так працює Docker)  |
 | `npm run sync:rollback`                | повернути попередній реліз                                       |
 | `npm test`                             | unit-тести з порогами покриття                                   |
 | `npm run test:e2e`                     | Playwright (потрібно один раз `npx playwright install chromium`) |

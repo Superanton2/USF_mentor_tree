@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import {
@@ -78,6 +79,24 @@ export class CsvMembershipDataSource implements MembershipDataSource {
       settings: await this.readSettings(),
       sourceIssues,
     };
+  }
+
+  /** Hash of every input file, so a change is noticed even when a tool preserves modification times. */
+  async readChangeFingerprint(): Promise<string> {
+    const hash = createHash('sha256');
+    for (const filePath of [
+      join(this.options.directory, MEMBERS_FILE_NAME),
+      join(this.options.directory, SETTINGS_FILE_NAME),
+      this.options.citiesFilePath,
+    ]) {
+      try {
+        hash.update(filePath).update(await readFile(filePath));
+      } catch {
+        // An absent optional file is part of the state too (settings.csv may appear later).
+        hash.update(`${filePath}:absent`);
+      }
+    }
+    return hash.digest('hex');
   }
 
   private async readRequiredFile(filePath: string): Promise<string> {

@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 
 const PROJECT_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
 const DEFAULT_RELEASES_TO_KEEP = 5;
+const DEFAULT_CSV_POLL_INTERVAL_SECONDS = 10;
 
 export interface EnvironmentConfiguration {
   dataSource: 'csv';
@@ -12,6 +13,7 @@ export interface EnvironmentConfiguration {
   publicDataDirectory: string;
   reportDirectory: string;
   releasesToKeep: number;
+  csvPollIntervalSeconds: number;
 }
 
 function resolveFromProjectRoot(path: string): string {
@@ -31,6 +33,12 @@ export function readEnvironmentConfiguration(environment = process.env): Environ
   if (!Number.isInteger(releasesToKeep) || releasesToKeep < 2) {
     throw new Error('RELEASES_TO_KEEP має бути цілим числом не менше 2.');
   }
+  const csvPollIntervalSeconds = Number(
+    environment['CSV_POLL_INTERVAL_SECONDS'] ?? DEFAULT_CSV_POLL_INTERVAL_SECONDS,
+  );
+  if (!Number.isInteger(csvPollIntervalSeconds) || csvPollIntervalSeconds < 1) {
+    throw new Error('CSV_POLL_INTERVAL_SECONDS має бути цілим числом не менше 1.');
+  }
   return {
     dataSource,
     csvDirectory: resolveFromProjectRoot(environment['CSV_DIRECTORY'] ?? 'data/demo'),
@@ -42,6 +50,7 @@ export function readEnvironmentConfiguration(environment = process.env): Environ
     ),
     reportDirectory: resolveFromProjectRoot(environment['REPORT_DIRECTORY'] ?? 'reports'),
     releasesToKeep,
+    csvPollIntervalSeconds,
   };
 }
 

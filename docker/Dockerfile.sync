@@ -15,5 +15,6 @@ COPY packages/domain ./packages/domain
 COPY packages/sync-service ./packages/sync-service
 COPY data/reference ./data/reference
 COPY data/demo ./data/demo
-# Stage 6 replaces this one-shot run with a watcher that polls the "publish" checkbox.
-CMD ["sh", "-c", "npm run sync; exec tail -f /dev/null"]
+# Publishes at start and again whenever the data files change (no container re-creation needed).
+# Stage 6 swaps the file check for polling the spreadsheet's "publish" checkbox.
+CMD ["node_modules/.bin/tsx", "packages/sync-service/src/cli/watchCommand.ts"]
