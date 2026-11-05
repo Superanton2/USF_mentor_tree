@@ -5,14 +5,14 @@ import {
   forceSimulation,
   type SimulationNodeDatum,
 } from 'd3-force';
-import { packSiblings } from 'd3-hierarchy';
+import { packEnclose, packSiblings } from 'd3-hierarchy';
 
-const LINK_DISTANCE = 30;
-const CHARGE_STRENGTH = -90;
+const LINK_DISTANCE = 18;
+const CHARGE_STRENGTH = -30;
 const LAYOUT_TICKS = 300;
 /** Free space kept around every tree, so neighbouring trees never touch. */
-const TREE_PADDING = 36;
-const RING_MARGIN = 120;
+const TREE_PADDING = 10;
+const RING_MARGIN = 70;
 const RING_NODE_SPACING = 18;
 
 export interface ClusterLayoutNode {
@@ -106,13 +106,18 @@ function layOutSingleTree(
     .stop();
   simulation.tick(LAYOUT_TICKS);
 
-  const localPositions = new Map(
-    simulatedNodes.map((node) => [node.id, { x: node.x ?? 0, y: node.y ?? 0 }]),
+  // Center each tree on its smallest enclosing circle: tighter than centering on the centroid.
+  const enclosure = packEnclose(
+    // eslint-disable-next-line id-length -- d3-hierarchy requires the circle radius to be named `r`
+    simulatedNodes.map((node) => ({ x: node.x ?? 0, y: node.y ?? 0, r: node.radius })),
   );
-  const radius =
-    Math.max(...simulatedNodes.map((node) => Math.hypot(node.x ?? 0, node.y ?? 0) + node.radius)) +
-    TREE_PADDING / 2;
-  return { radius, localPositions };
+  const localPositions = new Map(
+    simulatedNodes.map((node) => [
+      node.id,
+      { x: (node.x ?? 0) - enclosure.x, y: (node.y ?? 0) - enclosure.y },
+    ]),
+  );
+  return { radius: enclosure.r + TREE_PADDING / 2, localPositions };
 }
 
 function placeUnconnectedNodesOnRing(
