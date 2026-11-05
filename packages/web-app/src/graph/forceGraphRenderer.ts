@@ -3,6 +3,7 @@ import { designTokens } from '../design/tokens';
 import { withOpacity } from './colorConversion';
 import { computeClusterLayout } from './clusterLayout';
 import type {
+  GraphAppearance,
   GraphRendererFactory,
   GraphRendererNode,
   GraphRendererSelection,
@@ -27,6 +28,7 @@ const LABEL_FADE_RANGE_FACTOR = 0.4;
 const LABEL_FONT_SIZE = 12;
 const LABEL_OFFSET = 4;
 const SELECTED_OUTLINE_WIDTH = 2;
+const HOLLOW_RING_WIDTH = 1.2;
 const LINK_WIDTH = 1;
 const LINK_WIDTH_HIGHLIGHTED = 1.6;
 const ARROW_LENGTH = 4;
@@ -50,6 +52,12 @@ export const createForceGraphRenderer: GraphRendererFactory = (
   callbacks,
 ) => {
   const { settings } = options;
+  let appearance: GraphAppearance = {
+    memberStyles: new Map(),
+    isSelectedTreeHighlighted: true,
+    labelMode: 'auto',
+    shouldScaleNodes: true,
+  };
   let selection: GraphRendererSelection = { memberId: null, treeId: null };
   let hoveredMemberId: string | null = null;
   // Node coordinates exist only after the first frame; camera moves wait for it.
@@ -62,20 +70,21 @@ export const createForceGraphRenderer: GraphRendererFactory = (
   // Hidden until laid out and framed, so the viewer never sees nodes jumping into place.
   container.dataset['ready'] = 'false';
 
+  const scaledRadius = (node: GraphRendererNode) =>
+    Math.min(
+      MAX_NODE_RADIUS,
+      BASE_NODE_RADIUS + NODE_RADIUS_PER_SQRT_DESCENDANT * Math.sqrt(node.descendantCount),
+    );
   const nodeRadius = (node: GraphRendererNode) =>
-    options.shouldScaleNodesByDescendants
-      ? Math.min(
-          MAX_NODE_RADIUS,
-          BASE_NODE_RADIUS + NODE_RADIUS_PER_SQRT_DESCENDANT * Math.sqrt(node.descendantCount),
-        )
-      : BASE_NODE_RADIUS;
+    appearance.shouldScaleNodes ? scaledRadius(node) : BASE_NODE_RADIUS;
 
   // Mentees point to their mentors: source = mentee, target = mentor, arrow at the target end.
   const layoutPositions = computeClusterLayout(
     nodes.map((node) => ({
       memberId: node.memberId,
       treeId: node.treeId,
-      radius: nodeRadius(node),
+      // Always laid out with the larger radii, so turning node scaling on later cannot cause overlaps.
+      radius: scaledRadius(node),
     })),
     links.map((link) => ({
       sourceMemberId: link.menteeMemberId,
@@ -96,7 +105,14 @@ export const createForceGraphRenderer: GraphRendererFactory = (
 
   const isInSelectedTree = (node: SimulationNode) =>
     selection.treeId !== null && node.treeId === selection.treeId;
-  const isDimmed = (node: SimulationNode) => selection.treeId !== null && !isInSelectedTree(node);
+  const matchesFilters = (node: SimulationNode) =>
+    appearance.memberStyles.get(node.memberId)?.matchesFilters ?? true;
+  /** Outside the chosen tree, or filtered out: fades into the background (SPEC 7.2). */
+  const isDimmed = (node: SimulationNode) =>
+    (selection.treeId !== null && !isInSelectedTree(node)) || !matchesFilters(node);
+  const isHighlighted = (node: SimulationNode) => isInSelectedTree(node) && !isDimmed(node);
+  const resolveFillColor = (node: SimulationNode) =>
+    appearance.memberStyles.get(node.memberId)?.fillColor ?? null;
   const isHoverNeighbour = (first: string, second: string) =>
     hoveredMemberId !== null && (first === hoveredMemberId || second === hoveredMemberId);
 
@@ -109,20 +125,33 @@ export const createForceGraphRenderer: GraphRendererFactory = (
     const y = node.y ?? 0;
     const radius = nodeRadius(node);
     const isHovered = node.memberId === hoveredMemberId;
-    const baseColor = isInSelectedTree(node)
-      ? settings.colors.highlight
-      : isHovered
-        ? designTokens.colorNodeHover
-        : settings.colors.node;
+    const styleColor = resolveFillColor(node);
+    const baseColor =
+      appearance.isSelectedTreeHighlighted && isHighlighted(node)
+        ? settings.colors.highlight
+        : isHovered && appearance.isSelectedTreeHighlighted
+          ? designTokens.colorNodeHover
+          : styleColor;
+    const outlineColor = baseColor ?? settings.colors.node;
+    const paintColor = isDimmed(node)
+      ? withOpacity(outlineColor, settings.dimmedOpacity)
+      : outlineColor;
 
     canvasContext.beginPath();
     canvasContext.arc(x, y, radius, 0, 2 * Math.PI);
-    canvasContext.fillStyle = isDimmed(node)
-      ? withOpacity(baseColor, settings.dimmedOpacity)
-      : baseColor;
-    canvasContext.fill();
+    if (baseColor === null) {
+      // No data for this color mode: an empty ring.
+      canvasContext.lineWidth = HOLLOW_RING_WIDTH / zoom;
+      canvasContext.strokeStyle = paintColor;
+      canvasContext.stroke();
+    } else {
+      canvasContext.fillStyle = paintColor;
+      canvasContext.fill();
+    }
 
     if (node.memberId === selection.memberId) {
+      canvasContext.beginPath();
+      canvasContext.arc(x, y, radius, 0, 2 * Math.PI);
       canvasContext.lineWidth = SELECTED_OUTLINE_WIDTH / zoom;
       canvasContext.strokeStyle = WHITE;
       canvasContext.stroke();
@@ -139,13 +168,16 @@ export const createForceGraphRenderer: GraphRendererFactory = (
     isHovered: boolean,
   ): void {
     if (node.label === null || isDimmed(node)) return;
+    // "Never" still names the hovered member, like a tooltip.
+    if (appearance.labelMode === 'never' && !isHovered) return;
     const threshold = isInSelectedTree(node)
       ? settings.labelZoomThreshold * SELECTED_TREE_LABEL_THRESHOLD_FACTOR
       : settings.labelZoomThreshold;
     const fadeRange = threshold * LABEL_FADE_RANGE_FACTOR;
-    const fadeIn = isHovered
-      ? 1
-      : Math.min(1, Math.max(0, (zoom - (threshold - fadeRange)) / fadeRange));
+    const fadeIn =
+      isHovered || appearance.labelMode === 'always'
+        ? 1
+        : Math.min(1, Math.max(0, (zoom - (threshold - fadeRange)) / fadeRange));
     if (fadeIn === 0) return;
 
     canvasContext.font = `${LABEL_FONT_SIZE / zoom}px ${FONT_FAMILY}`;
@@ -154,6 +186,16 @@ export const createForceGraphRenderer: GraphRendererFactory = (
     canvasContext.fillStyle = withOpacity(designTokens.colorTextPrimary, fadeIn);
     canvasContext.fillText(node.label, x, bottomY + LABEL_OFFSET / zoom);
   }
+
+  const mentorOf = (link: SimulationLink) => nodesById.get(endpointId(link.target));
+  const isMentorDimmed = (link: SimulationLink) => {
+    const mentor = mentorOf(link);
+    return mentor !== undefined && isDimmed(mentor);
+  };
+  const isMentorHighlighted = (link: SimulationLink) => {
+    const mentor = mentorOf(link);
+    return mentor !== undefined && isHighlighted(mentor);
+  };
 
   /** Mentee node of a link: the one the link starts from. */
   const menteeOf = (link: SimulationLink) => nodesById.get(endpointId(link.source));
@@ -174,8 +216,9 @@ export const createForceGraphRenderer: GraphRendererFactory = (
     })
     .linkColor((link) => {
       const mentee = menteeOf(link);
-      if (mentee && isInSelectedTree(mentee)) return settings.colors.highlight;
-      if (mentee && isDimmed(mentee)) {
+      if (mentee && isHighlighted(mentee) && isMentorHighlighted(link))
+        return settings.colors.highlight;
+      if (mentee && (isDimmed(mentee) || isMentorDimmed(link))) {
         return withOpacity(settings.colors.link, settings.dimmedOpacity);
       }
       return isHoverNeighbour(endpointId(link.source), endpointId(link.target))
@@ -184,13 +227,16 @@ export const createForceGraphRenderer: GraphRendererFactory = (
     })
     .linkWidth((link) => {
       const mentee = menteeOf(link);
-      return mentee && isInSelectedTree(mentee) ? LINK_WIDTH_HIGHLIGHTED : LINK_WIDTH;
+      return mentee && isHighlighted(mentee) && isMentorHighlighted(link)
+        ? LINK_WIDTH_HIGHLIGHTED
+        : LINK_WIDTH;
     })
     .linkDirectionalArrowLength(ARROW_LENGTH)
     .linkDirectionalArrowColor((link) => {
       const mentee = menteeOf(link);
-      if (mentee && isInSelectedTree(mentee)) return settings.colors.highlight;
-      if (mentee && isDimmed(mentee)) {
+      if (mentee && isHighlighted(mentee) && isMentorHighlighted(link))
+        return settings.colors.highlight;
+      if (mentee && (isDimmed(mentee) || isMentorDimmed(link))) {
         return withOpacity(designTokens.colorLinkHover, settings.dimmedOpacity);
       }
       return designTokens.colorLinkHover;
@@ -274,6 +320,13 @@ export const createForceGraphRenderer: GraphRendererFactory = (
   return {
     setSelection(nextSelection) {
       selection = nextSelection;
+    },
+    setAppearance(nextAppearance) {
+      appearance = nextAppearance;
+    },
+    getMemberRendering(memberId) {
+      const node = nodesById.get(memberId);
+      return node ? { fillColor: resolveFillColor(node), isDimmed: isDimmed(node) } : null;
     },
     focusOnTree(treeId, insets) {
       if (!isLayoutReady) {

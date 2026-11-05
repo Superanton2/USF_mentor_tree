@@ -1,4 +1,5 @@
 import type { GraphSettings } from '@mentor-tree/domain';
+import type { LabelMode } from '../settings/userSettings';
 
 export interface GraphRendererNode {
   memberId: string;
@@ -6,6 +7,27 @@ export interface GraphRendererNode {
   /** null for hidden members: their names are never drawn. */
   label: string | null;
   descendantCount: number;
+}
+
+/** How one member is drawn; `fillColor: null` means "no data": an empty ring. */
+export interface MemberStyle {
+  fillColor: string | null;
+  matchesFilters: boolean;
+}
+
+/** Everything the visitor can change in the settings panel that affects the picture. */
+export interface GraphAppearance {
+  memberStyles: Map<string, MemberStyle>;
+  /** In the uniform color mode the chosen tree turns highlight yellow; in other modes nodes keep their mode color. */
+  isSelectedTreeHighlighted: boolean;
+  labelMode: LabelMode;
+  shouldScaleNodes: boolean;
+}
+
+/** What a member currently looks like. Exposed for tests and overlays. */
+export interface MemberRendering {
+  fillColor: string | null;
+  isDimmed: boolean;
 }
 
 export interface GraphRendererLink {
@@ -33,7 +55,6 @@ export interface GraphRendererCallbacks {
 
 export interface GraphRendererOptions {
   settings: GraphSettings;
-  shouldScaleNodesByDescendants: boolean;
 }
 
 /**
@@ -42,6 +63,8 @@ export interface GraphRendererOptions {
  */
 export interface GraphRenderer {
   setSelection(selection: GraphRendererSelection): void;
+  setAppearance(appearance: GraphAppearance): void;
+  getMemberRendering(memberId: string): MemberRendering | null;
   /** Smoothly frames the tree; with null frames the whole graph. */
   focusOnTree(treeId: string | null, insets: ViewInsets): void;
   /** Screen position of a member, or null if it is not drawn. Used by tests and overlays. */

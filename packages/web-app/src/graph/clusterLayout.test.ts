@@ -40,18 +40,22 @@ function findClosestGapBetweenTrees(
   nodes: readonly ClusterLayoutNode[],
   positions: Map<string, { x: number; y: number }>,
 ): number {
+  // Plain arrays instead of per-pair map lookups: this check compares millions of pairs.
+  const placed = nodes.map((node) => ({
+    treeId: node.treeId,
+    radius: node.radius,
+    x: positions.get(node.memberId)?.x ?? Number.NaN,
+    y: positions.get(node.memberId)?.y ?? Number.NaN,
+  }));
   let closestGap = Number.POSITIVE_INFINITY;
-  for (const [firstIndex, first] of nodes.entries()) {
-    for (const second of nodes.slice(firstIndex + 1)) {
-      if (first.treeId === second.treeId) continue;
-      const firstPosition = positions.get(first.memberId);
-      const secondPosition = positions.get(second.memberId);
-      if (!firstPosition || !secondPosition) continue;
-      const distance = Math.hypot(
-        firstPosition.x - secondPosition.x,
-        firstPosition.y - secondPosition.y,
-      );
-      closestGap = Math.min(closestGap, distance - first.radius - second.radius);
+  for (let firstIndex = 0; firstIndex < placed.length; firstIndex++) {
+    const first = placed[firstIndex];
+    if (!first) continue;
+    for (let secondIndex = firstIndex + 1; secondIndex < placed.length; secondIndex++) {
+      const second = placed[secondIndex];
+      if (!second || first.treeId === second.treeId) continue;
+      const gap = Math.hypot(first.x - second.x, first.y - second.y) - first.radius - second.radius;
+      if (gap < closestGap) closestGap = gap;
     }
   }
   return closestGap;
@@ -81,7 +85,7 @@ describe('computeClusterLayout', () => {
         0,
       );
     }
-  });
+  }, 30_000);
 
   it('puts members without a tree on a ring outside every tree', () => {
     const { nodes, links } = buildForest(10, 40, 4);

@@ -1,10 +1,14 @@
 import type { GraphIndex } from '@mentor-tree/domain';
 import type { Language } from '../locales';
 import type { RouteRequest, ViewMode } from '../routing/locationRouting';
+import { DEFAULT_USER_SETTINGS, type UserSettings } from '../settings/userSettings';
 
 export type ApplicationNotice = 'treeNotFound';
 
-export interface ApplicationState {
+export type PanelName = 'settings' | 'largestTrees';
+
+/** What the address bar determines; the rest of the state belongs to the visitor's session. */
+export interface RouteSelection {
   language: Language;
   selectedTreeId: string | null;
   selectedMemberId: string | null;
@@ -12,17 +16,37 @@ export interface ApplicationState {
   notice: ApplicationNotice | null;
 }
 
+export interface ApplicationState extends RouteSelection {
+  settings: UserSettings;
+  openPanel: PanelName | null;
+}
+
 export type ApplicationAction =
-  | { type: 'locationRestored'; state: ApplicationState }
+  | { type: 'locationRestored'; route: RouteSelection }
   | { type: 'memberSelected'; memberId: string; treeId: string | null }
   | { type: 'treeSelected'; treeId: string }
   | { type: 'selectionCleared' }
   | { type: 'languageChanged'; language: Language }
   | { type: 'viewChanged'; view: ViewMode }
+  | { type: 'settingsChanged'; changes: Partial<UserSettings> }
+  | { type: 'settingsReset' }
+  | { type: 'panelOpened'; panel: PanelName }
+  | { type: 'panelClosed' }
   | { type: 'noticeDismissed' };
 
-export function createInitialState(language: Language): ApplicationState {
-  return { language, selectedTreeId: null, selectedMemberId: null, view: 'graph', notice: null };
+export function createInitialState(
+  language: Language,
+  settings: UserSettings = DEFAULT_USER_SETTINGS,
+): ApplicationState {
+  return {
+    language,
+    selectedTreeId: null,
+    selectedMemberId: null,
+    view: 'graph',
+    notice: null,
+    settings,
+    openPanel: null,
+  };
 }
 
 export function applicationReducer(
@@ -31,7 +55,7 @@ export function applicationReducer(
 ): ApplicationState {
   switch (action.type) {
     case 'locationRestored':
-      return action.state;
+      return { ...state, ...action.route };
     case 'memberSelected':
       return {
         ...state,
@@ -55,17 +79,28 @@ export function applicationReducer(
       return state.selectedTreeId === null && action.view === 'lineage'
         ? state
         : { ...state, view: action.view };
+    case 'settingsChanged':
+      return { ...state, settings: { ...state.settings, ...action.changes } };
+    case 'settingsReset':
+      return { ...state, settings: DEFAULT_USER_SETTINGS };
+    case 'panelOpened':
+      return { ...state, openPanel: action.panel };
+    case 'panelClosed':
+      return { ...state, openPanel: null };
     case 'noticeDismissed':
       return { ...state, notice: null };
   }
 }
 
 /** Turns what the URL asks for into a state that is guaranteed to exist in the data. */
-export function resolveRouteAgainstData(
-  request: RouteRequest,
-  index: GraphIndex,
-): ApplicationState {
-  const base = createInitialState(request.language);
+export function resolveRouteAgainstData(request: RouteRequest, index: GraphIndex): RouteSelection {
+  const base: RouteSelection = {
+    language: request.language,
+    selectedTreeId: null,
+    selectedMemberId: null,
+    view: 'graph',
+    notice: null,
+  };
   const treeFromPath = request.treeId;
   const isTreeUnknown = treeFromPath !== null && !index.treesById.has(treeFromPath);
   const member = request.memberId === null ? undefined : index.membersById.get(request.memberId);

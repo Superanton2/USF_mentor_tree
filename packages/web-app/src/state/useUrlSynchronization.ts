@@ -27,7 +27,7 @@ export function useUrlSynchronization(
     const restoreFromLocation = () =>
       dispatch({
         type: 'locationRestored',
-        state: resolveRouteAgainstData(
+        route: resolveRouteAgainstData(
           parseRoute(window.location.pathname, window.location.search),
           index,
         ),

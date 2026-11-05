@@ -1,6 +1,7 @@
 import { buildGraphIndex, type GraphDocument, type GraphMember } from '@mentor-tree/domain';
 import { describe, expect, it } from 'vitest';
 import type { RouteRequest } from '../routing/locationRouting';
+import { DEFAULT_USER_SETTINGS } from '../settings/userSettings';
 import {
   applicationReducer,
   createInitialState,
@@ -120,10 +121,39 @@ describe('applicationReducer', () => {
         .view,
     ).toBe('graph');
   });
-  it('restores a location wholesale', () => {
-    const restored = { ...initial, selectedTreeId: '9' };
-    expect(applicationReducer(initial, { type: 'locationRestored', state: restored })).toBe(
-      restored,
+  it('restores a location without touching the visitor settings or panels', () => {
+    const withSettings = {
+      ...initial,
+      openPanel: 'settings' as const,
+      settings: { ...DEFAULT_USER_SETTINGS, colorMode: 'level' as const },
+    };
+    const route = resolveRouteAgainstData(request({ treeId: '9' }), index);
+    const restored = applicationReducer(withSettings, { type: 'locationRestored', route });
+    expect(restored).toMatchObject({ selectedTreeId: '9', openPanel: 'settings' });
+    expect(restored.settings.colorMode).toBe('level');
+  });
+  it('changes and resets the visitor settings', () => {
+    const changed = applicationReducer(initial, {
+      type: 'settingsChanged',
+      changes: { colorMode: 'region', showCity: false },
+    });
+    expect(changed.settings).toMatchObject({
+      colorMode: 'region',
+      showCity: false,
+      labelMode: 'auto',
+    });
+    expect(applicationReducer(changed, { type: 'settingsReset' }).settings).toEqual(
+      DEFAULT_USER_SETTINGS,
     );
+  });
+  it('keeps one panel open at a time', () => {
+    const settingsOpen = applicationReducer(initial, { type: 'panelOpened', panel: 'settings' });
+    expect(settingsOpen.openPanel).toBe('settings');
+    const treesOpen = applicationReducer(settingsOpen, {
+      type: 'panelOpened',
+      panel: 'largestTrees',
+    });
+    expect(treesOpen.openPanel).toBe('largestTrees');
+    expect(applicationReducer(treesOpen, { type: 'panelClosed' }).openPanel).toBeNull();
   });
 });

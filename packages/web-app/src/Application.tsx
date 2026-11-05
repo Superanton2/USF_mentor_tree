@@ -2,6 +2,7 @@ import { useCallback, useEffect, useReducer, useState } from 'react';
 import { LoadErrorScreen, LoadingScreen } from './components/StatusScreens';
 import { loadGraphIndex } from './data/graphDocumentLoading';
 import { TRANSLATIONS } from './locales';
+import { loadUserSettings, saveUserSettings } from './settings/userSettingsStorage';
 import { parseRoute } from './routing/locationRouting';
 import {
   applicationReducer,
@@ -17,7 +18,10 @@ type LoadingState =
 
 export function Application() {
   const [state, dispatch] = useReducer(applicationReducer, undefined, () =>
-    createInitialState(parseRoute(window.location.pathname, window.location.search).language),
+    createInitialState(
+      parseRoute(window.location.pathname, window.location.search).language,
+      loadUserSettings(),
+    ),
   );
   const [loadingState, setLoadingState] = useState<LoadingState>({ status: 'loading' });
   const [attempt, setAttempt] = useState(0);
@@ -32,7 +36,7 @@ export function Application() {
         // Resolved together with `ready`, so the first render already has the URL's selection.
         dispatch({
           type: 'locationRestored',
-          state: resolveRouteAgainstData(
+          route: resolveRouteAgainstData(
             parseRoute(window.location.pathname, window.location.search),
             index,
           ),
@@ -45,6 +49,10 @@ export function Application() {
       isCancelled = true;
     };
   }, [attempt]);
+
+  useEffect(() => {
+    saveUserSettings(state.settings);
+  }, [state.settings]);
 
   useEffect(() => {
     document.title = translations.htmlTitle;
