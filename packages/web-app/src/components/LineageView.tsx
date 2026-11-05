@@ -29,6 +29,11 @@ const BOTTOM_INSET = 70;
 const DESKTOP_MIN_WIDTH = 768;
 const DOT_RADIUS = 3;
 const DOT_OFFSET_FROM_EDGE = 12;
+const ARROW_SIZE = 10;
+const ARROW_MARKER_ID = 'lineage-arrow';
+const CHAIN_ARROW_MARKER_ID = 'lineage-arrow-chain';
+/** Matches .lineage-edge in application.css; markers cannot read CSS custom properties reliably. */
+const LINEAGE_EDGE_COLOR = '#5A5A5A';
 
 function useLineageFonts(): TextWidthMeasurer | null {
   const [measurer, setMeasurer] = useState<TextWidthMeasurer | null>(null);
@@ -130,6 +135,27 @@ export function LineageView() {
       role="group"
       aria-label={translations.lineageLabel}
     >
+      <defs>
+        {/* Small arrowheads at the mentor end of each connector, pointing up from mentee to mentor. */}
+        {[
+          { id: ARROW_MARKER_ID, color: LINEAGE_EDGE_COLOR },
+          { id: CHAIN_ARROW_MARKER_ID, color: dotColor },
+        ].map(({ id, color }) => (
+          <marker
+            key={id}
+            id={id}
+            viewBox="0 0 8 8"
+            refX={8}
+            refY={4}
+            markerWidth={ARROW_SIZE}
+            markerHeight={ARROW_SIZE}
+            markerUnits="userSpaceOnUse"
+            orient="auto-start-reverse"
+          >
+            <path d="M 0 0.5 L 8 4 L 0 7.5 z" fill={color} />
+          </marker>
+        ))}
+      </defs>
       <g ref={contentRef}>
         {layout && (
           <>
@@ -204,6 +230,7 @@ function renderEdge(parent: LineageLayoutNode, child: LineageLayoutNode, isHighl
       key={`${isHighlighted ? 'chain' : 'edge'}-${child.memberId}`}
       className={isHighlighted ? 'lineage-edge lineage-edge--chain' : 'lineage-edge'}
       d={buildConnectorPath(parent.x, parent.y, child.x)}
+      markerStart={`url(#${isHighlighted ? CHAIN_ARROW_MARKER_ID : ARROW_MARKER_ID})`}
       data-spacing={GENERATION_SPACING}
     />
   );

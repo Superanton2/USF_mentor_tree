@@ -436,3 +436,23 @@ button {
     top: 124px;
   }
 }
+
+/* The link goes on its own line under the sentence. */
+.disclaimer__link {
+  display: block;
+  margin-top: 2px;
+}
+
+/* The graph appears only when laid out and framed, so nodes never visibly jump into place. */
+.graph-view {
+  opacity: 0;
+}
+.graph-view[data-ready='true'] {
+  opacity: 1;
+  transition: opacity 300ms ease-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  .graph-view[data-ready='true'] {
+    transition: none;
+  }
+}

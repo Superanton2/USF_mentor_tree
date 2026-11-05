@@ -3,6 +3,27 @@ import { createForceGraphRenderer } from '../graph/forceGraphRenderer';
 import type { GraphRenderer } from '../graph/GraphRenderer';
 import { useApplication, useSelectionActions, useTranslations } from '../state/ApplicationContext';
 
+const DESKTOP_MIN_WIDTH = 768;
+const CARD_WIDTH_WITH_GAP = 392;
+const TOP_INSET = 110;
+const BOTTOM_INSET = 70;
+/** Share of the screen the mobile bottom sheet may cover (see .card in application.css). */
+const MOBILE_CARD_HEIGHT_SHARE = 0.55;
+
+/** What the camera must keep clear: search on top, disclaimer below, and the card when open. */
+function measureInterfaceInsets(isCardOpen: boolean) {
+  const isDesktop = window.innerWidth >= DESKTOP_MIN_WIDTH;
+  return {
+    top: TOP_INSET,
+    left: 0,
+    right: isCardOpen && isDesktop ? CARD_WIDTH_WITH_GAP : 0,
+    bottom:
+      isCardOpen && !isDesktop
+        ? Math.round(window.innerHeight * MOBILE_CARD_HEIGHT_SHARE)
+        : BOTTOM_INSET,
+  };
+}
+
 export function GraphView() {
   const { state, index } = useApplication();
   const translations = useTranslations();
@@ -48,7 +69,10 @@ export function GraphView() {
   }, [state.selectedMemberId, state.selectedTreeId, members]);
 
   useEffect(() => {
-    rendererRef.current?.focusOnTree(state.selectedTreeId);
+    rendererRef.current?.focusOnTree(
+      state.selectedTreeId,
+      measureInterfaceInsets(state.selectedTreeId !== null),
+    );
   }, [state.selectedTreeId, members]);
 
   return (

@@ -101,6 +101,19 @@ test.describe('graph, search and card', () => {
     await expect(page.getByTestId('graph-view')).toBeVisible();
   });
 
+  test('the graph appears only once it is laid out and framed', async ({ page }) => {
+    await page.goto('/uk/');
+    await expect(page.getByTestId('graph-view')).toHaveAttribute('data-ready', 'true');
+    await expect(page.getByTestId('graph-view')).toHaveCSS('opacity', '1');
+  });
+
+  test('the form link sits on its own line under the disclaimer text', async ({ page }) => {
+    await page.goto('/uk/');
+    const link = page.locator('.disclaimer__link');
+    await expect(link).toBeVisible();
+    await expect(link).toHaveCSS('display', 'block');
+  });
+
   test('the disclaimer and the update date are always visible', async ({ page }) => {
     await page.goto('/uk/');
     await expect(page.getByText('Дані неповні й можуть містити помилки')).toBeVisible();

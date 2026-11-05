@@ -61,6 +61,17 @@ test.describe('lineage view', () => {
     await expect(selected.locator('text')).toHaveCSS('fill', 'rgb(255, 214, 0)');
   });
 
+  test('connectors carry small arrowheads pointing at the mentor', async ({ page, request }) => {
+    const { founder } = await loadDemoMembers(request);
+    await page.goto(`/uk/tree/${founder.memberId}?view=lineage`);
+    const firstEdge = page.locator('.lineage-edge').first();
+    await expect(firstEdge).toHaveAttribute('marker-start', /url\(#lineage-arrow/);
+    await expect(page.locator('marker#lineage-arrow')).toHaveAttribute(
+      'orient',
+      'auto-start-reverse',
+    );
+  });
+
   test('clicking a name selects that person and rebuilds the chain; the view stays', async ({
     page,
     request,

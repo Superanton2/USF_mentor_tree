@@ -10,7 +10,7 @@ export function DataDisclaimer() {
       <p className="disclaimer__text">
         {translations.disclaimerBeforeLink}
         {formUrl && (
-          <a href={formUrl} target="_blank" rel="noreferrer">
+          <a className="disclaimer__link" href={formUrl} target="_blank" rel="noreferrer">
             {translations.disclaimerLink}
           </a>
         )}

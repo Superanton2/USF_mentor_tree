@@ -21,7 +21,7 @@ export const uk: Translations = {
   treeNotFound: 'Дерево не знайдено',
   dismiss: 'Закрити повідомлення',
   disclaimerBeforeLink:
-    'Дані неповні й можуть містити помилки. Не знайшли себе або бачите помилку? ',
+    'Дані неповні й можуть містити помилки. Не знайшли себе або бачите помилку?',
   disclaimerLink: 'Заповніть форму',
   dataUpdatedOn: (formattedDate) => `Дані оновлено ${formattedDate}`,
   hiddenMemberName: 'Учасник УСС',
