@@ -55,6 +55,9 @@ export function GraphView() {
       { onMemberClick: selectMember, onBackgroundClick: clearSelection },
     );
     rendererRef.current = renderer;
+    // Development-only handle so end-to-end tests can read node positions (stripped from production builds).
+    if (import.meta.env.DEV)
+      (window as unknown as { __graphRenderer?: GraphRenderer }).__graphRenderer = renderer;
     return () => {
       renderer.destroy();
       rendererRef.current = null;

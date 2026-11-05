@@ -44,6 +44,8 @@ export interface GraphRenderer {
   setSelection(selection: GraphRendererSelection): void;
   /** Smoothly frames the tree; with null frames the whole graph. */
   focusOnTree(treeId: string | null, insets: ViewInsets): void;
+  /** Screen position of a member, or null if it is not drawn. Used by tests and overlays. */
+  getMemberScreenPosition(memberId: string): { x: number; y: number } | null;
   destroy(): void;
 }
 

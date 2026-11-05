@@ -14,6 +14,13 @@ const NODE_RADIUS_PER_SQRT_DESCENDANT = 1.6;
 const MAX_NODE_RADIUS = 14;
 const CAMERA_PADDING = 70;
 const MAX_FOCUS_ZOOM = 6;
+// These must match the values used to precompute the layout (clusterLayout.ts): then the
+// picture starts at equilibrium and only the dragged part of the graph reacts to physics.
+const LINK_DISTANCE = 18;
+const CHARGE_STRENGTH = -30;
+/** Repulsion only acts inside a tree's neighbourhood, so a drag does not shove distant trees. */
+const CHARGE_MAX_DISTANCE = 120;
+const SETTLE_TICKS_AFTER_DRAG = 150;
 const CAMERA_DURATION_MS = 600;
 const SELECTED_TREE_LABEL_THRESHOLD_FACTOR = 0.6;
 const LABEL_FADE_RANGE_FACTOR = 0.4;
@@ -47,6 +54,7 @@ export const createForceGraphRenderer: GraphRendererFactory = (
   let hoveredMemberId: string | null = null;
   // Node coordinates exist only after the first frame; camera moves wait for it.
   let isLayoutReady = false;
+  let isDragging = false;
   let pendingFocus: { treeId: string | null; insets: ViewInsets } | null = null;
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   const cameraDuration = () => (prefersReducedMotion.matches ? 0 : CAMERA_DURATION_MS);
@@ -202,8 +210,8 @@ export const createForceGraphRenderer: GraphRendererFactory = (
         1 - (nodeRadius(mentor) + ARROW_GAP_FROM_NODE) / length,
       );
     })
-    // The layout is precomputed (SPEC 7.2: deterministic, no visible settling), so the
-    // physics engine stays off. It only needs explicit redraws for selection and hover.
+    // The layout is precomputed (deterministic, no visible settling), so the physics engine
+    // is idle until a drag. The scene redraws every frame so selection and hover show up.
     .autoPauseRedraw(false)
     .warmupTicks(0)
     .cooldownTicks(0)
@@ -218,6 +226,18 @@ export const createForceGraphRenderer: GraphRendererFactory = (
     .onNodeHover((node) => {
       hoveredMemberId = node ? node.memberId : null;
       container.style.cursor = node ? 'pointer' : '';
+    })
+    .onNodeDrag(() => {
+      // The scene is static until a node is grabbed; then the edge physics wakes up so that
+      // neighbours follow the dragged node, and it keeps running as long as the drag lasts.
+      if (isDragging) return;
+      isDragging = true;
+      graph.cooldownTicks(Number.POSITIVE_INFINITY).d3ReheatSimulation();
+    })
+    .onNodeDragEnd(() => {
+      isDragging = false;
+      // Re-arm a finite cool-down and let the graph settle, then freeze again.
+      graph.cooldownTicks(SETTLE_TICKS_AFTER_DRAG).d3ReheatSimulation();
     })
     .onNodeClick((node) => callbacks.onMemberClick(node.memberId))
     .onBackgroundClick(() => callbacks.onBackgroundClick());
@@ -242,6 +262,7 @@ export const createForceGraphRenderer: GraphRendererFactory = (
     graph.centerAt(centerX, centerY, duration).zoom(scale, duration);
   }
 
+  configurePhysics(graph);
   graph.graphData({ nodes: simulationNodes, links: simulationLinks });
 
   const resizeObserver = new ResizeObserver(() => {
@@ -261,9 +282,30 @@ export const createForceGraphRenderer: GraphRendererFactory = (
       }
       focusOnTree(treeId, insets, cameraDuration());
     },
+    getMemberScreenPosition(memberId) {
+      const node = nodesById.get(memberId);
+      return node ? graph.graph2ScreenCoords(node.x ?? 0, node.y ?? 0) : null;
+    },
     destroy() {
       resizeObserver.disconnect();
       graph._destructor();
     },
   };
 };
+
+interface TunableForce {
+  strength(value: number): unknown;
+  distance?(value: number): unknown;
+  distanceMax?(value: number): unknown;
+}
+
+function configurePhysics(graph: ForceGraph<SimulationNode, SimulationLink>): void {
+  // force-graph hands out its d3 forces untyped; only these three knobs are used.
+  const linkForce = graph.d3Force('link') as unknown as TunableForce | undefined;
+  linkForce?.distance?.(LINK_DISTANCE);
+  const chargeForce = graph.d3Force('charge') as unknown as TunableForce | undefined;
+  chargeForce?.strength(CHARGE_STRENGTH);
+  chargeForce?.distanceMax?.(CHARGE_MAX_DISTANCE);
+  // The default centering force would slowly drag whole trees towards the origin.
+  graph.d3Force('center', null);
+}
