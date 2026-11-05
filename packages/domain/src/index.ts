@@ -12,3 +12,5 @@ export * from './graphDocument';
 export * from './membershipImport';
 export * from './searchNormalization';
 export * from './graphIndex';
+export * from './colorScales';
+export * from './memberFilters';
