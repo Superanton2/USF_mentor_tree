@@ -119,7 +119,10 @@ export function SearchBox() {
                 >
                   <span className="search__name">{member.fullName}</span>
                   <span className="search__meta">
-                    {[findCityName(index, member, state.language), describeResult(member)]
+                    {[
+                      state.settings.showCity ? findCityName(index, member, state.language) : null,
+                      describeResult(member),
+                    ]
                       .filter(Boolean)
                       .join(' · ')}
                   </span>

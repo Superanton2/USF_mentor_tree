@@ -63,11 +63,11 @@ button {
   align-items: center;
   gap: 10px;
 }
-.top-left__logo {
+.brand__logo {
   height: 32px;
   width: auto;
 }
-.top-left__title {
+.brand__title {
   margin: 0;
   font-size: 16px;
   font-weight: 700;
@@ -455,4 +455,320 @@ button {
   .graph-view[data-ready='true'] {
     transition: none;
   }
+}
+
+/* Top-left: brand and the largest-trees button under it. */
+.top-left {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.top-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pill-button,
+.icon-button {
+  padding: 8px 14px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--color-text-primary);
+}
+.icon-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  color: var(--color-text-secondary);
+}
+.icon-button[aria-expanded='true'] {
+  color: var(--color-highlight);
+}
+
+/* Panels: right drawer (settings), left drawer (largest trees); bottom sheets on mobile. */
+.panel {
+  position: absolute;
+  top: 64px;
+  bottom: 80px;
+  width: var(--card-width);
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+}
+.panel--right {
+  right: var(--edge-gap);
+}
+.panel--left {
+  left: var(--edge-gap);
+  top: 104px;
+}
+.panel:focus {
+  outline: none;
+}
+.panel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px 6px;
+}
+.panel__title {
+  margin: 0;
+  font-size: 18px;
+}
+.panel__close {
+  width: 32px;
+  height: 32px;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  font-size: 22px;
+  color: var(--color-text-secondary);
+}
+.panel__body {
+  padding: 8px 16px 16px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.settings-section {
+  border-top: 1px solid var(--color-border);
+  padding-top: 8px;
+}
+.settings-section__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.settings-section__title {
+  margin: 0;
+  font-size: 15px;
+}
+.settings-section__toggle {
+  padding: 4px 0;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  font-weight: 700;
+}
+.settings-section__body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-top: 6px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.field__label {
+  color: var(--color-text-secondary);
+  font-size: 13px;
+  padding: 0;
+}
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.chip {
+  padding: 4px 10px;
+  background: none;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  cursor: pointer;
+  color: var(--color-text-secondary);
+}
+.chip[aria-pressed='true'] {
+  color: #000;
+  background: var(--color-highlight);
+  border-color: var(--color-highlight);
+  font-weight: 700;
+}
+.select-button {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: none;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: left;
+}
+.select-popup {
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.select-popup__search {
+  width: 100%;
+  padding: 8px 12px;
+  font: inherit;
+  color: var(--color-text-primary);
+  background: var(--color-background);
+  border: 0;
+  border-bottom: 1px solid var(--color-border);
+}
+.select-popup__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  max-height: 200px;
+  overflow-y: auto;
+}
+.select-popup__option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  cursor: pointer;
+}
+.select-popup__count {
+  margin-left: auto;
+  color: var(--color-text-secondary);
+  font-size: 13px;
+}
+.toggle,
+.radio {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+.radio-group {
+  gap: 6px;
+}
+input[type='checkbox'],
+input[type='radio'] {
+  accent-color: var(--color-highlight);
+}
+.button--secondary {
+  align-self: flex-start;
+  color: var(--color-text-primary);
+  background: none;
+  border: 1px solid var(--color-border);
+}
+
+.tree-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.tree-list__item {
+  display: grid;
+  grid-template-columns: 24px 1fr auto;
+  gap: 8px;
+  width: 100%;
+  padding: 8px;
+  text-align: left;
+  background: none;
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.tree-list__item:hover,
+.tree-list__item[aria-current='true'] {
+  background: var(--color-border);
+}
+.tree-list__place,
+.tree-list__count {
+  color: var(--color-text-secondary);
+}
+.tree-list__founder {
+  font-weight: 700;
+}
+
+.legend {
+  position: absolute;
+  left: var(--edge-gap);
+  bottom: 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 12px;
+  font-size: 13px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+}
+.legend__item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.legend__years {
+  display: flex;
+  justify-content: space-between;
+  color: var(--color-text-secondary);
+  font-size: 12px;
+}
+
+.lineage-node[data-dimmed='true'] {
+  opacity: 0.25;
+}
+
+@media (max-width: 767px) {
+  .brand {
+    display: none;
+  }
+  .top-left {
+    top: 64px;
+  }
+  .top-center {
+    left: var(--edge-gap);
+    right: var(--edge-gap);
+    width: auto;
+    transform: none;
+  }
+  .top-center .search {
+    margin-right: 104px;
+  }
+  .view-switch {
+    align-self: flex-end;
+  }
+  .panel,
+  .panel--left {
+    top: auto;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: auto;
+    max-height: 70vh;
+    border-radius: 12px 12px 0 0;
+    border-bottom: 0;
+  }
+  .legend {
+    bottom: 70px;
+  }
+}
+
+/* The top-center strip spans the screen width on phones; only its controls should catch clicks. */
+.top-center {
+  pointer-events: none;
+}
+.top-center .search,
+.top-center .view-switch {
+  pointer-events: auto;
 }

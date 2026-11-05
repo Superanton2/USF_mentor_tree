@@ -81,9 +81,13 @@ function MemberDetails({ member, founder }: { member: GraphMember; founder: Grap
   if (member.isHidden) return <h2 className="card__title">{translations.hiddenMemberName}</h2>;
 
   const details = [
-    findCityName(index, member, state.language),
-    member.membershipLevel === null ? null : translations.levels[member.membershipLevel],
-    member.leadershipProgramYear === null ? null : `ПЛ ${member.leadershipProgramYear}`,
+    state.settings.showCity ? findCityName(index, member, state.language) : null,
+    state.settings.showLevel && member.membershipLevel !== null
+      ? translations.levels[member.membershipLevel]
+      : null,
+    state.settings.showProgramYear && member.leadershipProgramYear !== null
+      ? translations.programYear(member.leadershipProgramYear)
+      : null,
   ].filter(Boolean);
 
   return (

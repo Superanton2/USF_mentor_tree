@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { useMemberStyles } from '../appearance/AppearanceContext';
 import { createForceGraphRenderer } from '../graph/forceGraphRenderer';
 import type { GraphRenderer } from '../graph/GraphRenderer';
 import { useApplication, useSelectionActions, useTranslations } from '../state/ApplicationContext';
@@ -28,6 +29,7 @@ export function GraphView() {
   const { state, index } = useApplication();
   const translations = useTranslations();
   const { selectMember, clearSelection } = useSelectionActions();
+  const memberStyles = useMemberStyles();
   const containerRef = useRef<HTMLDivElement>(null);
   const rendererRef = useRef<GraphRenderer | null>(null);
   const { settings, members } = index.document;
@@ -51,7 +53,7 @@ export function GraphView() {
           ? []
           : [{ mentorMemberId: member.mentorMemberId, menteeMemberId: member.memberId }],
       ),
-      { settings, shouldScaleNodesByDescendants: true },
+      { settings },
       { onMemberClick: selectMember, onBackgroundClick: clearSelection },
     );
     rendererRef.current = renderer;
@@ -63,6 +65,21 @@ export function GraphView() {
       rendererRef.current = null;
     };
   }, [members, settings, selectMember, clearSelection]);
+
+  useEffect(() => {
+    rendererRef.current?.setAppearance({
+      memberStyles,
+      isSelectedTreeHighlighted: state.settings.colorMode === 'uniform',
+      labelMode: state.settings.labelMode,
+      shouldScaleNodes: state.settings.shouldScaleNodes,
+    });
+  }, [
+    memberStyles,
+    state.settings.colorMode,
+    state.settings.labelMode,
+    state.settings.shouldScaleNodes,
+    members,
+  ]);
 
   useEffect(() => {
     rendererRef.current?.setSelection({

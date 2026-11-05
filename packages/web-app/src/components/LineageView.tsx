@@ -2,6 +2,7 @@ import { listPathFromFounder } from '@mentor-tree/domain';
 import { select } from 'd3-selection';
 import { zoom, zoomIdentity, type D3ZoomEvent, type ZoomBehavior } from 'd3-zoom';
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react';
+import { useMemberStyles } from '../appearance/AppearanceContext';
 import { computeInitialCamera } from '../lineage/initialCamera';
 import { buildConnectorPath } from '../lineage/connectorPath';
 import { buildLineageInput } from '../lineage/lineageInput';
@@ -34,6 +35,7 @@ const ARROW_MARKER_ID = 'lineage-arrow';
 const CHAIN_ARROW_MARKER_ID = 'lineage-arrow-chain';
 /** Matches .lineage-edge in application.css; markers cannot read CSS custom properties reliably. */
 const LINEAGE_EDGE_COLOR = '#5A5A5A';
+const EMPTY_DOT_STROKE_COLOR = '#8C8C8C';
 
 function useLineageFonts(): TextWidthMeasurer | null {
   const [measurer, setMeasurer] = useState<TextWidthMeasurer | null>(null);
@@ -119,7 +121,9 @@ export function LineageView() {
     () => new Map(layout?.nodes.map((node) => [node.memberId, node]) ?? []),
     [layout],
   );
-  const dotColor = index.document.settings.colors.highlight;
+  const highlightColor = index.document.settings.colors.highlight;
+  const memberStyles = useMemberStyles();
+  const isUniformMode = state.settings.colorMode === 'uniform';
 
   const activateOnKeyboard = (event: KeyboardEvent<SVGGElement>, memberId: string) => {
     if (event.key !== 'Enter' && event.key !== ' ') return;
@@ -139,7 +143,7 @@ export function LineageView() {
         {/* Small arrowheads at the mentor end of each connector, pointing up from mentee to mentor. */}
         {[
           { id: ARROW_MARKER_ID, color: LINEAGE_EDGE_COLOR },
-          { id: CHAIN_ARROW_MARKER_ID, color: dotColor },
+          { id: CHAIN_ARROW_MARKER_ID, color: highlightColor },
         ].map(({ id, color }) => (
           <marker
             key={id}
@@ -178,6 +182,9 @@ export function LineageView() {
             {layout.nodes.map((node) => {
               const member = index.membersById.get(node.memberId);
               const displayName = member ? getDisplayName(member, translations) : '';
+              const style = memberStyles.get(node.memberId);
+              // The dot carries the color mode; no data for the mode means an empty ring.
+              const dotFill = isUniformMode ? highlightColor : (style?.fillColor ?? null);
               return (
                 <g
                   key={node.memberId}
@@ -190,6 +197,7 @@ export function LineageView() {
                   data-member-id={node.memberId}
                   data-chain={chainMemberIds.has(node.memberId)}
                   data-selected={node.memberId === state.selectedMemberId}
+                  data-dimmed={style?.matchesFilters === false}
                   onClick={() => selectMember(node.memberId)}
                   onKeyDown={(event) => activateOnKeyboard(event, node.memberId)}
                 >
@@ -204,7 +212,10 @@ export function LineageView() {
                     cx={-node.width / 2 + DOT_OFFSET_FROM_EDGE}
                     cy={-LINEAGE_LINE_HEIGHT / 2}
                     r={DOT_RADIUS}
-                    fill={dotColor}
+                    fill={dotFill ?? 'none'}
+                    stroke={dotFill === null ? EMPTY_DOT_STROKE_COLOR : 'none'}
+                    strokeWidth={1}
+                    data-dot-color={dotFill ?? 'none'}
                   />
                   <text className="lineage-name" textAnchor="middle">
                     <tspan x={0} y={-LINEAGE_LINE_HEIGHT / 2} dominantBaseline="central">
