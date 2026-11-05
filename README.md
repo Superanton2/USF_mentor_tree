@@ -21,6 +21,8 @@ docker compose up -d --build   # сайт на http://localhost:8080 (змінн
 Реальні дані: покладіть CSV у `data/private/`, у `.env` вкажіть `CSV_DIRECTORY=/app/data/private` і перезапустіть `sync`
 (`docker compose up -d --force-recreate sync`).
 
+Щоб `npm run dev` і Docker показували реальні дані, у локальному `.env` (він не потрапляє в git) вкажіть `CSV_DIRECTORY=data/private`, потім `npm run sync`. Налаштування (наприклад `formUrl`) беруться з `data/private/settings.csv`.
+
 Реальні дані лежать у `data/private/` (у git не потрапляють). Запуск на них:
 
 ```bash
